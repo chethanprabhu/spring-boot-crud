@@ -1,16 +1,22 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.PersonRequestDto;
+import com.example.demo.dto.PersonResponseDto;
 import com.example.demo.entity.Person;
 import com.example.demo.exception.PersonAgeLimitException;
 import com.example.demo.exception.PersonNotFoundException;
+import com.example.demo.exception.SortFieldNotAllowedException;
 import com.example.demo.mapper.PersonMapper;
 import com.example.demo.repository.PersonRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class PersonService {
@@ -22,8 +28,21 @@ public class PersonService {
         this.personMapper = personMapper;
     }
 
-    public List<Person> getAllPersons() {
-        return personRepository.findAll();
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("name", "address", "email");
+
+    public PersonResponseDto getAllPersons(Pageable pageable) {
+        pageable.getSort().forEach(order -> {
+            if(!ALLOWED_SORT_FIELDS.contains(order.getProperty())) {
+                throw new SortFieldNotAllowedException(("Sorting is allowed only on name, email and address fields."));
+            }
+        });
+        Page<Person> page = personRepository.findAll(pageable);
+
+        PersonResponseDto response = new PersonResponseDto();
+        response.setItems(page.getContent());
+        response.setCount(page.getTotalElements());
+
+        return response;
     }
 
     public Person getPersonById(int id) {

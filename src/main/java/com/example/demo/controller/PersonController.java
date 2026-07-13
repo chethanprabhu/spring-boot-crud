@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.PersonRequestDto;
+import com.example.demo.dto.PersonResponseDto;
 import com.example.demo.entity.Person;
 import com.example.demo.service.PersonService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +19,8 @@ public class PersonController {
     }
 
     @GetMapping("/persons")
-    public List<Person> getAllPersons() {
-        return personService.getAllPersons();
+    public PersonResponseDto getAllPersons(Pageable pageable) {
+        return personService.getAllPersons(pageable);
     }
 
     @GetMapping("/persons/{id}")
