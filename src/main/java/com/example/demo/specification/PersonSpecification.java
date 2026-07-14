@@ -26,4 +26,16 @@ public class PersonSpecification {
 
         return (root, query, cb) -> cb.and(cb.greaterThanOrEqualTo(root.get("age"), minAge), cb.lessThanOrEqualTo(root.get("age"), maxAge));
     }
+
+    public static Specification<Person> searchSpec(String search) {
+        if(search == null) {
+            return Specification.unrestricted();
+        }
+
+        String pattern = "%" + search.toLowerCase() + "%";
+
+        return (root, query, cb) -> cb.or(
+                cb.like(cb.lower(root.get("name")), "%" + pattern + "%"),
+                cb.like(root.get("phoneNumber"), "%" + pattern + "%"));
+    }
 }

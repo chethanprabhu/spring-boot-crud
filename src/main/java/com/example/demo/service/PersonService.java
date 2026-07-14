@@ -32,7 +32,7 @@ public class PersonService {
 
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("name", "address", "email");
 
-    public PersonResponseDto getAllPersons(Boolean married, Integer minAge, Integer maxAge,  Pageable pageable) {
+    public PersonResponseDto getAllPersons(Boolean married, Integer minAge, Integer maxAge, String search, Pageable pageable) {
         pageable.getSort().forEach(order -> {
             if(!ALLOWED_SORT_FIELDS.contains(order.getProperty())) {
                 throw new SortFieldNotAllowedException(("Sorting is allowed only on name, email and address fields."));
@@ -40,7 +40,7 @@ public class PersonService {
         });
 
         Specification<Person> specification = Specification.where(PersonSpecification.hasMarried(married))
-                .and(PersonSpecification.ageFilter(minAge, maxAge));
+                .and(PersonSpecification.ageFilter(minAge, maxAge).and(PersonSpecification.searchSpec(search)));
 
         Page<Person> page = personRepository.findAll(specification, pageable);
 

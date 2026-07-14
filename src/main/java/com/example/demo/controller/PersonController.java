@@ -19,8 +19,8 @@ public class PersonController {
     }
 
     @GetMapping("/persons")
-    public PersonResponseDto getAllPersons(@RequestParam(required = false) Boolean married, @RequestParam(required = false) Integer minAge, @RequestParam(required = false) Integer maxAge, Pageable pageable) {
-        return personService.getAllPersons(married, minAge, maxAge, pageable);
+    public PersonResponseDto getAllPersons(@RequestParam(required = false) Boolean married, @RequestParam(required = false) Integer minAge, @RequestParam(required = false) Integer maxAge, @RequestParam(required = false) String search, Pageable pageable) {
+        return personService.getAllPersons(married, minAge, maxAge, search, pageable);
     }
 
     @GetMapping("/persons/{id}")
