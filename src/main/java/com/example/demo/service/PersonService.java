@@ -8,9 +8,11 @@ import com.example.demo.exception.PersonNotFoundException;
 import com.example.demo.exception.SortFieldNotAllowedException;
 import com.example.demo.mapper.PersonMapper;
 import com.example.demo.repository.PersonRepository;
+import com.example.demo.specification.PersonSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +32,17 @@ public class PersonService {
 
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("name", "address", "email");
 
-    public PersonResponseDto getAllPersons(Pageable pageable) {
+    public PersonResponseDto getAllPersons(Boolean married, Integer minAge, Integer maxAge,  Pageable pageable) {
         pageable.getSort().forEach(order -> {
             if(!ALLOWED_SORT_FIELDS.contains(order.getProperty())) {
                 throw new SortFieldNotAllowedException(("Sorting is allowed only on name, email and address fields."));
             }
         });
-        Page<Person> page = personRepository.findAll(pageable);
+
+        Specification<Person> specification = Specification.where(PersonSpecification.hasMarried(married))
+                .and(PersonSpecification.ageFilter(minAge, maxAge));
+
+        Page<Person> page = personRepository.findAll(specification, pageable);
 
         PersonResponseDto response = new PersonResponseDto();
         response.setItems(page.getContent());
